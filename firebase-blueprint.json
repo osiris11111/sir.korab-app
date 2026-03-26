@@ -1,0 +1,76 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "A user of the application",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "isAdmin": { "type": "boolean" },
+        "isPaid": { "type": "boolean" },
+        "completedVideos": { "type": "array", "items": { "type": "string" } },
+        "videoProgress": { "type": "object", "additionalProperties": { "type": "number" } }
+      },
+      "required": ["uid", "email", "isAdmin", "isPaid"]
+    },
+    "Video": {
+      "title": "Video",
+      "description": "A video lesson",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "category": { "type": "string" },
+        "url": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "title", "category", "url", "createdAt"]
+    },
+    "Feedback": {
+      "title": "Feedback",
+      "description": "User feedback or issue report for a video",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "videoId": { "type": "string" },
+        "text": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "currentTime": { "type": "number" }
+      },
+      "required": ["userId", "videoId", "text", "timestamp", "currentTime"]
+    },
+    "CheckoutRequest": {
+      "title": "Checkout Request",
+      "description": "A request to purchase access",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "paymentMethod": { "type": "string" },
+        "status": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "userId": { "type": "string" }
+      },
+      "required": ["name", "email", "paymentMethod", "status", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "User profiles"
+    },
+    "/videos/{videoId}": {
+      "schema": { "$ref": "#/entities/Video" },
+      "description": "Video lessons"
+    },
+    "/feedback/{feedbackId}": {
+      "schema": { "$ref": "#/entities/Feedback" },
+      "description": "User feedback and issue reports"
+    },
+    "/checkout_requests/{requestId}": {
+      "schema": { "$ref": "#/entities/CheckoutRequest" },
+      "description": "Checkout requests for access"
+    }
+  }
+}

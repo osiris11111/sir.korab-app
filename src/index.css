@@ -1,0 +1,84 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&family=Manrope:wght@400;500;600&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #e5e5e5;
+  --color-primary-dim: #a3a3a3;
+  --color-primary-fixed: #ffffff;
+  --color-on-primary-fixed: #000000;
+  --color-secondary: #ffffff;
+  --color-secondary-dim: #e5e5e5;
+  --color-tertiary: #737373;
+  --color-tertiary-dim: #525252;
+  --color-surface: #000000;
+  --color-surface-dim: #0a0a0a;
+  --color-surface-container-lowest: #000000;
+  --color-surface-container-low: #0a0a0a;
+  --color-surface-container: #171717;
+  --color-surface-container-high: #262626;
+  --color-surface-container-highest: #404040;
+  --color-on-surface: #ffffff;
+  --color-on-surface-variant: #a3a3a3;
+  --color-outline: #525252;
+  --color-outline-variant: #262626;
+  --color-background: #000000;
+  --color-on-background: #ffffff;
+
+  --font-headline: "Space Grotesk", sans-serif;
+  --font-body: "Inter", sans-serif;
+  --font-label: "Manrope", sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-background text-on-background font-body antialiased selection:bg-primary/30 selection:text-primary;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-headline tracking-tight;
+  }
+}
+
+@layer components {
+  .glass-panel {
+    @apply bg-surface-container-low/40 backdrop-blur-xl border border-outline-variant/20 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)];
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary;
+  }
+
+  .glow-primary {
+    @apply relative;
+  }
+  .glow-primary::before {
+    content: '';
+    @apply absolute -inset-1 bg-gradient-to-r from-primary to-secondary rounded-full blur-md opacity-30 -z-10 transition-opacity duration-300;
+  }
+  .glow-primary:hover::before {
+    @apply opacity-60;
+  }
+
+  .kinetic-gradient-primary {
+    @apply bg-gradient-to-r from-gray-200 via-white to-gray-200 text-black font-bold;
+  }
+
+  .kinetic-gradient-viral {
+    @apply bg-gradient-to-r from-gray-200 via-white to-gray-200 text-black font-bold;
+  }
+
+  .liquid-glass {
+    @apply bg-white/5 backdrop-blur-md border border-white/10;
+  }
+
+  .kinetic-grain {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    opacity: 0.05;
+    pointer-events: none;
+  }
+  
+  .liquid-glow {
+    filter: blur(120px);
+    opacity: 0.10;
+  }
+}

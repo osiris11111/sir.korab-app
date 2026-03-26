@@ -1,0 +1,134 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Document ID: {userId}
+    // Fields:
+    //   - uid: string (required)
+    //   - email: string (required)
+    //   - isAdmin: boolean (required)
+    //   - isPaid: boolean (required)
+    //
+    // Collection: videos
+    // Document ID: {videoId}
+    // Fields:
+    //   - id: string (required)
+    //   - title: string (required)
+    //   - category: string (required)
+    //   - url: string (required)
+    //   - createdAt: string (required)
+    //
+    // ===============================================================
+
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && (
+        request.auth.token.email in ["apolokor@gmail.com", "joeykorab88@gmail.com"] ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true)
+      );
+    }
+
+    function hasRequiredUserFields() {
+      return request.resource.data.keys().hasAll(['uid', 'email', 'isAdmin', 'isPaid']);
+    }
+
+    function isValidUser() {
+      return hasRequiredUserFields() &&
+             request.resource.data.uid is string &&
+             request.resource.data.email is string &&
+             request.resource.data.isAdmin is bool &&
+             request.resource.data.isPaid is bool;
+    }
+
+    function hasRequiredVideoFields() {
+      return request.resource.data.keys().hasAll(['title', 'category', 'url', 'createdAt']);
+    }
+
+    function isValidVideo() {
+      return hasRequiredVideoFields() &&
+             request.resource.data.title is string &&
+             request.resource.data.category is string &&
+             request.resource.data.url is string &&
+             request.resource.data.createdAt is string;
+    }
+
+    match /users/{userId} {
+      // Anyone can read their own profile, admins can read all
+      allow read: if isOwner(userId) || isAdmin();
+      
+      // Users can create their own profile, but cannot make themselves admin or paid unless they are the default admin
+      allow create: if isOwner(userId) && isValidUser() && (
+        (request.resource.data.isAdmin == false && request.resource.data.isPaid == false) ||
+        (request.auth.token.email in ["apolokor@gmail.com", "joeykorab88@gmail.com"] && request.resource.data.isAdmin == true) ||
+        isAdmin()
+      );
+
+      // Only admins can update user profiles (to grant access)
+      // Or users can update their own profile (but not their role/paid status)
+      allow update: if (isAdmin() && isValidUser()) || 
+                       (isOwner(userId) && isValidUser() && 
+                        request.resource.data.isAdmin == resource.data.isAdmin && 
+                        request.resource.data.isPaid == resource.data.isPaid);
+                        
+      allow delete: if isAdmin();
+    }
+
+    match /preapproved_emails/{email} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    function isValidCheckoutRequest() {
+      return request.resource.data.keys().hasAll(['name', 'email', 'paymentMethod', 'status', 'createdAt', 'userId']) &&
+             request.resource.data.name is string &&
+             request.resource.data.email is string &&
+             request.resource.data.paymentMethod is string &&
+             request.resource.data.status is string &&
+             (request.resource.data.userId is string || request.resource.data.userId == null);
+    }
+
+    match /checkout_requests/{requestId} {
+      allow create: if isValidCheckoutRequest();
+      allow read, update, delete: if isAdmin();
+    }
+
+    function isValidFeedback() {
+      return request.resource.data.keys().hasAll(['userId', 'videoId', 'text', 'timestamp', 'currentTime']) &&
+             request.resource.data.userId is string &&
+             request.resource.data.videoId is string &&
+             request.resource.data.text is string &&
+             request.resource.data.text.size() > 0 &&
+             request.resource.data.text.size() <= 2000 &&
+             request.resource.data.currentTime is number &&
+             request.resource.data.userId == request.auth.uid;
+    }
+
+    match /feedback/{feedbackId} {
+      allow create: if isAuthenticated() && isValidFeedback();
+      allow read, update, delete: if isAdmin();
+    }
+
+    match /videos/{videoId} {
+      // Anyone authenticated can read videos (we'll filter in the UI based on isPaid)
+      allow read: if isAuthenticated();
+      
+      // Only admins can manage videos
+      allow create, update: if isAdmin() && isValidVideo();
+      allow delete: if isAdmin();
+    }
+  }
+}
