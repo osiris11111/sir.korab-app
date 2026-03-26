@@ -6,6 +6,7 @@ on:
   workflow_dispatch:
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+# Added to force a new commit and ensure the latest fixes are pushed.
 permissions:
   contents: read
   pages: write
@@ -31,11 +32,13 @@ jobs:
           node-version: 22
           cache: 'npm'
       - name: Install dependencies
-        run: npm install
+        run: npm install --no-audit --no-fund --legacy-peer-deps
       - name: Build
         run: npm run build
         env:
           NODE_OPTIONS: "--max_old_space_size=4096"
+      - name: Debug Build Output
+        run: ls -la dist/
       - name: Setup Pages
         uses: actions/configure-pages@v4
       - name: Upload artifact
