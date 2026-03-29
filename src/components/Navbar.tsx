@@ -1,5 +1,5 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Menu, X, Home, LayoutDashboard, Grid, Shield, LogOut } from 'lucide-react';
+import { Menu, X, Home, LayoutDashboard, Grid, Shield, LogOut, BarChart2 } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { auth } from '../firebase';
@@ -18,32 +18,48 @@ export default function Navbar() {
 
   if (currentUser) {
     return (
-      <nav className="fixed bottom-0 w-full z-50 bg-background/60 backdrop-blur-xl border-t border-outline-variant/10 pb-safe">
-        <div className="flex justify-around items-center h-16 max-w-md mx-auto px-4">
-          <Link to="/" className={`flex flex-col items-center gap-1 transition-colors ${location.pathname === '/' ? 'text-primary' : 'text-on-surface-variant hover:text-on-surface'}`}>
-            <Home className="w-5 h-5" />
-            <span className="text-[10px] font-medium">Home</span>
-          </Link>
-          <Link to="/dashboard" className={`flex flex-col items-center gap-1 transition-colors ${location.pathname === '/dashboard' ? 'text-primary' : 'text-on-surface-variant hover:text-on-surface'}`}>
-            <LayoutDashboard className="w-5 h-5" />
-            <span className="text-[10px] font-medium">Dashboard</span>
-          </Link>
-          <Link to="/categories" className={`flex flex-col items-center gap-1 transition-colors ${location.pathname.startsWith('/categories') ? 'text-primary' : 'text-on-surface-variant hover:text-on-surface'}`}>
-            <Grid className="w-5 h-5" />
-            <span className="text-[10px] font-medium">Categories</span>
-          </Link>
-          {userData?.isAdmin && (
-            <Link to="/admin" className={`flex flex-col items-center gap-1 transition-colors ${location.pathname === '/admin' ? 'text-primary' : 'text-on-surface-variant hover:text-on-surface'}`}>
-              <Shield className="w-5 h-5" />
-              <span className="text-[10px] font-medium">Admin</span>
+      <>
+        {/* Top Bar for Logged In Users */}
+        <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-outline-variant/10 px-4 py-3">
+          <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+            <Link to="/" className="flex-shrink-0">
+              <span className="text-xl font-headline font-bold text-gradient"></span>
             </Link>
-          )}
-          <button onClick={handleLogout} className="flex flex-col items-center gap-1 text-on-surface-variant hover:text-error transition-colors">
-            <LogOut className="w-5 h-5" />
-            <span className="text-[10px] font-medium">Logout</span>
-          </button>
+          </div>
         </div>
-      </nav>
+
+        {/* Bottom Navigation */}
+        <nav className="fixed bottom-0 w-full z-50 bg-background/90 backdrop-blur-xl border-t border-outline-variant/10 pb-safe">
+          <div className="flex justify-around items-center h-16 max-w-md mx-auto px-2 sm:px-4">
+            <Link to="/" className={`flex flex-col items-center gap-1 transition-colors ${location.pathname === '/' ? 'text-primary' : 'text-on-surface-variant hover:text-on-surface'}`}>
+              <Home className="w-5 h-5" />
+              <span className="text-[10px] font-medium">Home</span>
+            </Link>
+            <Link to="/dashboard" className={`flex flex-col items-center gap-1 transition-colors ${location.pathname === '/dashboard' ? 'text-primary' : 'text-on-surface-variant hover:text-on-surface'}`}>
+              <LayoutDashboard className="w-5 h-5" />
+              <span className="text-[10px] font-medium">Dashboard</span>
+            </Link>
+            <Link to="/categories" className={`flex flex-col items-center gap-1 transition-colors ${location.pathname.startsWith('/categories') ? 'text-primary' : 'text-on-surface-variant hover:text-on-surface'}`}>
+              <Grid className="w-5 h-5" />
+              <span className="text-[10px] font-medium">Categories</span>
+            </Link>
+            <Link to="/progress" className={`flex flex-col items-center gap-1 transition-colors ${location.pathname === '/progress' ? 'text-primary' : 'text-on-surface-variant hover:text-on-surface'}`}>
+              <BarChart2 className="w-5 h-5" />
+              <span className="text-[10px] font-medium">Progress</span>
+            </Link>
+            {userData?.isAdmin && (
+              <Link to="/admin" className={`flex flex-col items-center gap-1 transition-colors ${location.pathname === '/admin' ? 'text-primary' : 'text-on-surface-variant hover:text-on-surface'}`}>
+                <Shield className="w-5 h-5" />
+                <span className="text-[10px] font-medium">Admin</span>
+              </Link>
+            )}
+            <button onClick={handleLogout} className="flex flex-col items-center gap-1 text-on-surface-variant hover:text-error transition-colors">
+              <LogOut className="w-5 h-5" />
+              <span className="text-[10px] font-medium">Logout</span>
+            </button>
+          </div>
+        </nav>
+      </>
     );
   }
 
@@ -53,7 +69,7 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
             <Link to="/" className="flex-shrink-0">
-              <span className="text-2xl font-headline font-bold text-gradient">Sir Korab</span>
+              <span className="text-2xl font-headline font-bold text-gradient"></span>
             </Link>
           </div>
           <div className="hidden md:flex items-center space-x-8">

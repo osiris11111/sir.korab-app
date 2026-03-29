@@ -9,6 +9,7 @@ import Lesson from './pages/Lesson';
 import Login from './pages/Login';
 import Admin from './pages/Admin';
 import ThankYou from './pages/ThankYou';
+import Progress from './pages/Progress';
 import { AuthProvider } from './contexts/AuthContext';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
@@ -30,6 +31,7 @@ export default function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/admin" element={<Admin />} />
                 <Route path="/thank-you" element={<ThankYou />} />
+                <Route path="/progress" element={<Progress />} />
               </Routes>
             </main>
           </div>

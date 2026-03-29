@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { PlayCircle, Clock, CheckCircle2, Lock, TrendingUp, Award, Zap } from 'lucide-react';
+import { PlayCircle, Clock, CheckCircle2, Lock, TrendingUp, Award, Zap, Bookmark } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useEffect, useState } from 'react';
 import { db } from '../firebase';
@@ -14,6 +14,8 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const [videosByCategory, setVideosByCategory] = useState<Record<string, Record<string, any[]>>>({});
   const [completedVideos, setCompletedVideos] = useState<string[]>([]);
+  const [bookmarkedVideos, setBookmarkedVideos] = useState<string[]>([]);
+  const [totalVideosCount, setTotalVideosCount] = useState(0);
   const [fetching, setFetching] = useState(true);
 
   useEffect(() => {
@@ -27,6 +29,7 @@ export default function Dashboard() {
       try {
         const querySnapshot = await getDocs(collection(db, 'videos'));
         const videos: any[] = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setTotalVideosCount(videos.length);
         
         const grouped = videos.reduce((acc, video) => {
           const cat = video.category || 'Uncategorized';
@@ -41,8 +44,14 @@ export default function Dashboard() {
 
         if (currentUser) {
           const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
-          if (userDoc.exists() && userDoc.data().completedVideos) {
-            setCompletedVideos(userDoc.data().completedVideos || []);
+          if (userDoc.exists()) {
+            const data = userDoc.data();
+            if (data.completedVideos) {
+              setCompletedVideos(data.completedVideos || []);
+            }
+            if (data.bookmarkedVideos) {
+              setBookmarkedVideos(data.bookmarkedVideos || []);
+            }
           }
         }
       } catch (error) {
@@ -120,9 +129,26 @@ export default function Dashboard() {
         
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
-          <div>
+          <div className="flex-1 max-w-2xl">
             <h1 className="text-3xl md:text-5xl font-bold mb-2">Welcome back, {userData?.email?.split('@')[0] || 'Creator'}</h1>
-            <p className="text-on-surface-variant text-lg">Pick up where you left off and keep building.</p>
+            <p className="text-on-surface-variant text-lg mb-6">Pick up where you left off and keep building.</p>
+            
+            {!isLocked && totalVideosCount > 0 && (
+              <div className="bg-surface-container-low p-4 rounded-2xl border border-outline-variant/20">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm font-bold text-on-surface">Course Progress</span>
+                  <span className="text-sm font-bold text-primary">{Math.round((completedVideos.length / totalVideosCount) * 100)}% Completed</span>
+                </div>
+                <div className="h-3 w-full bg-surface-container-highest rounded-full overflow-hidden">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${(completedVideos.length / totalVideosCount) * 100}%` }}
+                    transition={{ duration: 1, ease: "easeOut" }}
+                    className="h-full bg-primary rounded-full"
+                  />
+                </div>
+              </div>
+            )}
           </div>
           {isLocked ? (
             <div className="glass-panel px-6 py-4 rounded-2xl flex items-center gap-4 border-primary/30">
@@ -158,6 +184,44 @@ export default function Dashboard() {
             </div>
           )}
         </div>
+
+        {/* Favorites Section */}
+        {bookmarkedVideos.length > 0 && (
+          <div className="space-y-8 mb-16">
+            <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+              <Bookmark className="w-6 h-6 text-primary" /> Favorites
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Object.values(videosByCategory)
+                .flatMap(modules => Object.values(modules).flat())
+                .filter(video => bookmarkedVideos.includes(video.id))
+                .map(video => (
+                <div 
+                  key={`fav-${video.id}`}
+                  className="glass-panel rounded-2xl overflow-hidden cursor-pointer hover:scale-[1.02] transition-all duration-300"
+                  onClick={() => navigate(`/lesson/${video.id}`)}
+                >
+                  <div className="aspect-video relative">
+                    {video.thumbnail ? (
+                      <img src={video.thumbnail} alt={video.title} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full bg-surface-container-high flex items-center justify-center">
+                        <PlayCircle className="w-12 h-12 text-primary/50" />
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                      <PlayCircle className="w-16 h-16 text-white" />
+                    </div>
+                  </div>
+                  <div className="p-4">
+                    <h3 className="font-bold text-lg mb-1 truncate">{video.title}</h3>
+                    <p className="text-sm text-on-surface-variant truncate">{video.category} • {video.module}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Curriculum */}
         <div className="space-y-8">
@@ -218,8 +282,17 @@ export default function Dashboard() {
                               <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                               <div className="flex items-center justify-between gap-4 relative z-10">
                                 <div className="flex items-center gap-4">
-                                  <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 text-sm font-bold transition-colors duration-300 ${isLocked ? 'bg-surface-container-highest text-on-surface-variant' : completedVideos.includes(video.id) ? 'bg-primary text-on-primary-fixed shadow-[0_0_15px_rgba(var(--color-primary),0.4)]' : 'bg-primary/10 text-primary group-hover:bg-primary/20'}`}>
-                                    {completedVideos.includes(video.id) ? <CheckCircle2 className="w-6 h-6" /> : lessonIndex + 1}
+                                  <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 text-sm font-bold transition-colors duration-300 overflow-hidden relative ${isLocked ? 'bg-surface-container-highest text-on-surface-variant' : 'bg-primary/10 text-primary group-hover:bg-primary/20'}`}>
+                                    {video.thumbnail ? (
+                                      <img src={video.thumbnail} alt="" className="w-full h-full object-cover" />
+                                    ) : (
+                                      lessonIndex + 1
+                                    )}
+                                    {completedVideos.includes(video.id) && (
+                                      <div className="absolute inset-0 bg-primary/60 flex items-center justify-center">
+                                        <CheckCircle2 className="w-6 h-6 text-on-primary-fixed" />
+                                      </div>
+                                    )}
                                   </div>
                                   <div>
                                     <span className="font-bold text-lg text-on-surface block mb-1 group-hover:text-primary transition-colors">

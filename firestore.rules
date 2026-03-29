@@ -122,6 +122,51 @@ service cloud.firestore {
       allow read, update, delete: if isAdmin();
     }
 
+    function isValidNote() {
+      return request.resource.data.keys().hasAll(['videoId', 'userId', 'text', 'timestamp', 'createdAt']) &&
+             request.resource.data.videoId is string &&
+             request.resource.data.userId is string &&
+             request.resource.data.userId == request.auth.uid &&
+             request.resource.data.text is string &&
+             request.resource.data.text.size() > 0 &&
+             request.resource.data.text.size() <= 5000 &&
+             request.resource.data.timestamp is number;
+    }
+
+    match /notes/{noteId} {
+      allow read: if isOwner(resource.data.userId) || isAdmin();
+      allow create: if isAuthenticated() && isValidNote();
+      allow update: if (isOwner(resource.data.userId) && isValidNote() && request.resource.data.userId == resource.data.userId) || isAdmin();
+      allow delete: if isOwner(resource.data.userId) || isAdmin();
+    }
+
+    function isValidComment() {
+      return request.resource.data.keys().hasAll(['videoId', 'userId', 'userEmail', 'text', 'likes', 'replies', 'createdAt']) &&
+             request.resource.data.videoId is string &&
+             request.resource.data.userId is string &&
+             request.resource.data.userEmail is string &&
+             request.resource.data.text is string &&
+             request.resource.data.text.size() > 0 &&
+             request.resource.data.text.size() <= 2000 &&
+             request.resource.data.likes is list &&
+             request.resource.data.replies is list;
+    }
+
+    match /comments/{commentId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isValidComment() && request.resource.data.userId == request.auth.uid;
+      allow update: if isAuthenticated() && (
+        (isOwner(resource.data.userId) && isValidComment() && request.resource.data.userId == resource.data.userId) ||
+        (isValidComment() &&
+         request.resource.data.userId == resource.data.userId &&
+         request.resource.data.videoId == resource.data.videoId &&
+         request.resource.data.userEmail == resource.data.userEmail &&
+         request.resource.data.text == resource.data.text &&
+         request.resource.data.createdAt == resource.data.createdAt)
+      ) || isAdmin();
+      allow delete: if isOwner(resource.data.userId) || isAdmin();
+    }
+
     match /videos/{videoId} {
       // Anyone authenticated can read videos (we'll filter in the UI based on isPaid)
       allow read: if isAuthenticated();

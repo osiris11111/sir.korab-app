@@ -53,6 +53,34 @@
         "userId": { "type": "string" }
       },
       "required": ["name", "email", "paymentMethod", "status", "createdAt"]
+    },
+    "Note": {
+      "title": "Note",
+      "description": "A user's private note for a video",
+      "type": "object",
+      "properties": {
+        "videoId": { "type": "string" },
+        "userId": { "type": "string" },
+        "text": { "type": "string" },
+        "timestamp": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["videoId", "userId", "text", "timestamp", "createdAt"]
+    },
+    "Comment": {
+      "title": "Comment",
+      "description": "A public comment on a video",
+      "type": "object",
+      "properties": {
+        "videoId": { "type": "string" },
+        "userId": { "type": "string" },
+        "userEmail": { "type": "string" },
+        "text": { "type": "string" },
+        "likes": { "type": "array", "items": { "type": "string" } },
+        "replies": { "type": "array", "items": { "type": "object" } },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["videoId", "userId", "userEmail", "text", "likes", "replies", "createdAt"]
     }
   },
   "firestore": {
@@ -71,6 +99,14 @@
     "/checkout_requests/{requestId}": {
       "schema": { "$ref": "#/entities/CheckoutRequest" },
       "description": "Checkout requests for access"
+    },
+    "/notes/{noteId}": {
+      "schema": { "$ref": "#/entities/Note" },
+      "description": "User notes for videos"
+    },
+    "/comments/{commentId}": {
+      "schema": { "$ref": "#/entities/Comment" },
+      "description": "Public comments for videos"
     }
   }
 }
