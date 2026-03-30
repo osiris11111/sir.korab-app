@@ -8,30 +8,9 @@ export default function VideoBackground() {
     const video = videoRef.current;
     if (!video) return;
 
-    // If the video is already loaded enough to play, fade it in immediately.
-    // This fixes the issue where 'canplay' fires before React attaches the listener.
     if (video.readyState >= 3) {
       setOpacity(1);
     }
-
-    const handleTimeUpdate = () => {
-      if (video.currentTime >= 7.5) {
-        setOpacity(0);
-        setTimeout(() => {
-          if (video) {
-            video.currentTime = 0;
-            video.play().catch(() => {});
-            setOpacity(1);
-          }
-        }, 500); // 500ms fade out
-      }
-    };
-
-    video.addEventListener('timeupdate', handleTimeUpdate);
-
-    return () => {
-      video.removeEventListener('timeupdate', handleTimeUpdate);
-    };
   }, []);
 
   return (
@@ -43,6 +22,7 @@ export default function VideoBackground() {
         style={{ opacity }}
         autoPlay
         muted
+        loop
         playsInline
         onCanPlay={() => setOpacity(1)}
       />
