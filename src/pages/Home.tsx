@@ -4,7 +4,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { motion } from 'motion/react';
 import { ArrowRight, Zap, Users, Sparkles, Star } from 'lucide-react';
-import ThreeBackground from '../components/ThreeBackground';
+import VideoBackground from '../components/VideoBackground';
 
 export default function Home() {
   const { currentUser, userData } = useAuth();
@@ -29,31 +29,29 @@ export default function Home() {
         
         {/* Subtle Digital Background */}
         <div className="fixed inset-0 kinetic-grain z-0"></div>
-        <div className="fixed -top-[10%] -left-[10%] w-[40%] h-[40%] bg-primary liquid-glow rounded-full z-0"></div>
-        <div className="fixed -bottom-[10%] -right-[10%] w-[40%] h-[40%] bg-secondary liquid-glow rounded-full z-0"></div>
 
         {/* Hero Section */}
-        <section className="relative min-h-screen w-full flex items-center justify-center pt-8 pb-12 overflow-hidden">
+        <section className={`relative min-h-[100svh] w-full flex flex-col items-center justify-center md:justify-start ${currentUser ? 'pt-4 md:pt-12' : 'pt-16 md:pt-24'} pb-8 md:pb-12 overflow-hidden`}>
           {/* Background Video */}
-          <ThreeBackground />
+          <VideoBackground />
           
           {/* Content */}
-          <div className="relative z-20 container mx-auto px-6 md:px-12 flex flex-col items-center text-center mt-4">
+          <div className="relative z-20 container mx-auto px-4 md:px-12 flex flex-col items-center text-center mt-0 md:mt-4">
             <motion.div 
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5 }}
-              className="mb-8 inline-flex items-center gap-3 px-5 py-2 rounded-full liquid-glass border border-outline-variant/30 shadow-[0_0_20px_rgba(255,255,255,0.1)]"
+              className="mb-5 md:mb-8 inline-flex items-center gap-2 sm:gap-3 px-3 sm:px-5 py-2 rounded-full liquid-glass border border-outline-variant/30 shadow-[0_0_20px_rgba(255,255,255,0.1)] max-w-full"
             >
-              <span className="w-2 h-2 rounded-full bg-secondary animate-pulse shadow-[0_0_10px_rgba(255,255,255,0.8)]"></span>
-              <span className="text-xs font-label font-bold tracking-[0.2em] uppercase text-secondary">Inner Circle Enrollment Open</span>
+              <span className="w-2 h-2 flex-shrink-0 rounded-full bg-secondary animate-pulse shadow-[0_0_10px_rgba(255,255,255,0.8)]"></span>
+              <span className="text-[10px] sm:text-xs font-label font-bold tracking-widest sm:tracking-[0.2em] uppercase text-secondary whitespace-nowrap">Inner Circle Enrollment Open</span>
             </motion.div>
             
             <motion.h1 
               initial="hidden"
               animate="visible"
               variants={fadeIn}
-              className="font-headline font-black text-5xl md:text-7xl lg:text-[7rem] leading-[1.05] md:leading-[0.95] tracking-tighter mb-8 max-w-5xl uppercase"
+              className="font-headline font-black text-5xl md:text-7xl lg:text-[7rem] leading-[1.05] md:leading-[0.95] tracking-tighter mb-5 md:mb-8 max-w-5xl uppercase"
             >
               COMMAND THE <span className="text-gradient italic pr-2">ALGORITHM</span>
             </motion.h1>
@@ -62,26 +60,26 @@ export default function Home() {
               initial="hidden"
               animate="visible"
               variants={fadeIn}
-              className="text-on-surface-variant text-lg md:text-2xl max-w-3xl mb-14 font-body leading-relaxed font-light"
+              className="text-white font-bold text-base md:text-2xl max-w-3xl mb-8 md:mb-14 font-body leading-relaxed"
             >
-              Stop chasing trends. Master the mechanics of viral growth and transform your personal brand into an <span className="text-on-surface font-semibold">unstoppable digital asset</span>.
+              Stop chasing trends. Master the mechanics of viral growth and transform your personal brand into an <span className="text-white font-black">unstoppable digital asset</span>.
             </motion.p>
             
             <motion.div 
               initial="hidden"
               animate="visible"
               variants={fadeIn}
-              className="flex flex-col sm:flex-row gap-6 w-full sm:w-auto justify-center"
+              className="flex flex-col sm:flex-row gap-3 md:gap-6 w-full sm:w-auto justify-center"
             >
               <Link to={currentUser ? "/dashboard" : "/login"} className="w-full sm:w-auto group">
-                <button className="relative w-full overflow-hidden kinetic-gradient-primary text-on-primary-fixed px-12 py-6 rounded-2xl font-headline font-black tracking-[0.15em] text-lg uppercase shadow-[0_0_40px_rgba(255,255,255,0.4)] hover:shadow-[0_0_60px_rgba(255,255,255,0.6)] hover:scale-[1.02] transition-all duration-300 flex items-center justify-center gap-3">
+                <button className="relative w-full overflow-hidden kinetic-gradient-primary text-on-primary-fixed px-8 py-4 md:px-12 md:py-6 rounded-2xl font-headline font-black tracking-[0.15em] text-base md:text-lg uppercase shadow-[0_0_40px_rgba(255,255,255,0.4)] hover:shadow-[0_0_60px_rgba(255,255,255,0.6)] hover:scale-[1.02] transition-all duration-300 flex items-center justify-center gap-3">
                   <span className="relative z-10">{currentUser ? "Dashboard" : "Sign In"}</span>
                   <Zap className="w-5 h-5 relative z-10 group-hover:scale-110 transition-transform" />
                   <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></div>
                 </button>
               </Link>
               <Link to={userData?.isPaid ? "/dashboard" : "/pricing"} className="w-full sm:w-auto group">
-                <button className="w-full liquid-glass border border-outline-variant/40 text-on-surface px-12 py-6 rounded-2xl font-headline font-bold tracking-[0.15em] text-lg uppercase flex items-center justify-center gap-3 hover:bg-surface-container hover:border-outline-variant transition-all duration-300">
+                <button className="w-full liquid-glass border border-outline-variant/40 text-white px-8 py-4 md:px-12 md:py-6 rounded-2xl font-headline font-bold tracking-[0.15em] text-base md:text-lg uppercase flex items-center justify-center gap-3 hover:bg-white/10 hover:border-white/40 transition-all duration-300">
                   {userData?.isPaid ? "Start Learning" : "Unlock Now"}
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
                 </button>

@@ -64,18 +64,18 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="sticky top-0 z-50 glass-panel border-b border-outline-variant/20">
+    <nav className="absolute top-0 w-full z-50 bg-transparent">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
             <Link to="/" className="flex-shrink-0">
-              <span className="text-2xl font-headline font-bold text-gradient"></span>
+              <span className="text-2xl font-headline font-bold text-white"></span>
             </Link>
           </div>
           <div className="hidden md:flex items-center space-x-8">
-            <Link to="/" className="text-on-surface-variant hover:text-on-surface px-3 py-2 rounded-md text-sm font-medium transition-colors">Home</Link>
-            <Link to="/pricing" className="text-on-surface-variant hover:text-on-surface px-3 py-2 rounded-md text-sm font-medium transition-colors">Pricing</Link>
-            <Link to="/login" className="bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 px-4 py-2 rounded-full text-sm font-medium transition-all glow-primary">
+            <Link to="/" className="text-white hover:text-white/80 px-3 py-2 rounded-md text-sm font-medium transition-colors">Home</Link>
+            <Link to="/pricing" className="text-white hover:text-white/80 px-3 py-2 rounded-md text-sm font-medium transition-colors">Pricing</Link>
+            <Link to="/login" className="bg-white/10 text-white border border-white/20 hover:bg-white/20 px-4 py-2 rounded-full text-sm font-medium transition-all">
               Join Now
             </Link>
           </div>
@@ -83,7 +83,7 @@ export default function Navbar() {
             <button
               onClick={() => setIsOpen(!isOpen)}
               type="button"
-              className="inline-flex items-center justify-center p-2 rounded-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container focus:outline-none"
+              className="inline-flex items-center justify-center p-2 rounded-md text-white hover:text-white/80 focus:outline-none"
             >
               <span className="sr-only">Open main menu</span>
               {isOpen ? <X className="block h-6 w-6" /> : <Menu className="block h-6 w-6" />}

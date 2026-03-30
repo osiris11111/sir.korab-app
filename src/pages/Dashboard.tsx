@@ -128,10 +128,10 @@ export default function Dashboard() {
       <div className="max-w-5xl mx-auto">
         
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 md:mb-12 gap-6">
           <div className="flex-1 max-w-2xl">
             <h1 className="text-3xl md:text-5xl font-bold mb-2">Welcome back, {userData?.email?.split('@')[0] || 'Creator'}</h1>
-            <p className="text-on-surface-variant text-lg mb-6">Pick up where you left off and keep building.</p>
+            <p className="text-on-surface-variant text-base md:text-lg mb-6">Pick up where you left off and keep building.</p>
             
             {!isLocked && totalVideosCount > 0 && (
               <div className="bg-surface-container-low p-4 rounded-2xl border border-outline-variant/20">
@@ -151,35 +151,35 @@ export default function Dashboard() {
             )}
           </div>
           {isLocked ? (
-            <div className="glass-panel px-6 py-4 rounded-2xl flex items-center gap-4 border-primary/30">
-              <div>
-                <p className="text-sm text-on-surface-variant font-medium uppercase tracking-wider mb-2">Account Status</p>
-                <Link to="/pricing">
-                  <button className="bg-primary text-on-primary-fixed px-4 py-2 rounded-full text-sm font-bold hover:opacity-90 transition-opacity">
+            <div className="glass-panel px-6 py-4 rounded-2xl flex items-center gap-4 border-primary/30 w-full md:w-auto">
+              <div className="w-full">
+                <p className="text-sm text-on-surface-variant font-medium uppercase tracking-wider mb-2 text-center md:text-left">Account Status</p>
+                <Link to="/pricing" className="block w-full">
+                  <button className="w-full bg-primary text-on-primary-fixed px-4 py-3 md:py-2 rounded-full text-sm font-bold hover:opacity-90 transition-opacity">
                     Upgrade to Access Content
                   </button>
                 </Link>
               </div>
             </div>
           ) : (
-            <div className="flex gap-4">
-              <div className="glass-panel px-6 py-4 rounded-2xl flex flex-col items-center justify-center border-outline-variant/20 hover:border-primary/30 transition-colors">
+            <div className="grid grid-cols-2 gap-3 md:gap-4 w-full md:w-auto">
+              <div className="glass-panel px-4 md:px-6 py-4 rounded-2xl flex flex-col items-center justify-center border-outline-variant/20 hover:border-primary/30 transition-colors">
                 <div className="flex items-center gap-2 text-primary mb-1">
-                  <TrendingUp className="w-5 h-5" />
-                  <span className="font-bold text-xl">{completedVideos.length}</span>
+                  <TrendingUp className="w-4 h-4 md:w-5 md:h-5" />
+                  <span className="font-bold text-lg md:text-xl">{completedVideos.length}</span>
                 </div>
-                <span className="text-xs text-on-surface-variant uppercase tracking-wider font-medium">Lessons Done</span>
+                <span className="text-[10px] md:text-xs text-on-surface-variant uppercase tracking-wider font-medium text-center">Lessons Done</span>
               </div>
-              <div className="glass-panel px-6 py-4 rounded-2xl flex flex-col items-center justify-center border-outline-variant/20 hover:border-secondary/30 transition-colors">
+              <div className="glass-panel px-4 md:px-6 py-4 rounded-2xl flex flex-col items-center justify-center border-outline-variant/20 hover:border-secondary/30 transition-colors">
                 <div className="flex items-center gap-2 text-secondary mb-1">
-                  <Award className="w-5 h-5" />
-                  <span className="font-bold text-xl">
+                  <Award className="w-4 h-4 md:w-5 md:h-5" />
+                  <span className="font-bold text-lg md:text-xl">
                     {Object.values(videosByCategory).reduce((total, modules) => {
                       return total + Object.values(modules).filter(videos => videos.length > 0 && videos.every(v => completedVideos.includes(v.id))).length;
                     }, 0)}
                   </span>
                 </div>
-                <span className="text-xs text-on-surface-variant uppercase tracking-wider font-medium">Modules Mastered</span>
+                <span className="text-[10px] md:text-xs text-on-surface-variant uppercase tracking-wider font-medium text-center">Modules Mastered</span>
               </div>
             </div>
           )}

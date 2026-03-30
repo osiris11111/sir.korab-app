@@ -25,6 +25,14 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
+import {
+  GripVertical,
+  HelpCircle,
+  Edit,
+  Trash2,
+  Paperclip
+} from 'lucide-react';
+
 function SortableVideoItem({ video, onEdit, onDelete, onManageQuiz }: { video: any, onEdit: any, onDelete: any, onManageQuiz: any }) {
   const {
     attributes,
@@ -40,52 +48,52 @@ function SortableVideoItem({ video, onEdit, onDelete, onManageQuiz }: { video: a
   };
 
   return (
-    <div ref={setNodeRef} style={style} className="bg-surface-container-high p-4 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 relative z-10 bg-surface-container-high">
-      <div className="flex items-center gap-4">
-        <div {...attributes} {...listeners} className="cursor-grab hover:text-primary p-2 -ml-2">
-          <span className="material-symbols-outlined">drag_indicator</span>
+    <div ref={setNodeRef} style={style} className="bg-surface-container-high p-3 sm:p-4 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 relative z-10">
+      <div className="flex items-center gap-3 sm:gap-4 min-w-0 w-full sm:flex-1">
+        <div {...attributes} {...listeners} className="cursor-grab hover:text-primary p-1 sm:p-2 -ml-1 sm:-ml-2 shrink-0">
+          <GripVertical className="w-5 h-5 text-on-surface-variant" />
         </div>
         {video.thumbnail && (
-          <img src={video.thumbnail} alt="" className="w-16 h-12 object-cover rounded-lg shrink-0" />
+          <img src={video.thumbnail} alt="" className="w-12 h-9 sm:w-16 sm:h-12 object-cover rounded-lg shrink-0" />
         )}
-        <div>
-          <h4 className="font-bold">{video.title}</h4>
-          <span className="text-xs text-secondary uppercase tracking-widest">{video.category} {video.module ? `• ${video.module}` : ''}</span>
+        <div className="min-w-0 flex-1">
+          <h4 className="font-bold text-sm sm:text-base break-words line-clamp-2">{video.title}</h4>
+          <span className="text-[10px] sm:text-xs text-secondary uppercase tracking-widest block truncate">{video.category} {video.module ? `• ${video.module}` : ''}</span>
           {video.resourceUrl && (
-            <div className="text-xs text-primary mt-1 flex items-center gap-1">
-              <span className="material-symbols-outlined text-[14px]">attach_file</span>
-              {video.resourceTitle || 'Resource Attached'}
+            <div className="text-[10px] sm:text-xs text-primary mt-1 flex items-center gap-1 truncate">
+              <Paperclip className="w-3 h-3 shrink-0" />
+              <span className="truncate">{video.resourceTitle || 'Resource Attached'}</span>
             </div>
           )}
           {video.quiz && video.quiz.length > 0 && (
-            <div className="text-xs text-purple-400 mt-1 flex items-center gap-1">
-              <span className="material-symbols-outlined text-[14px]">quiz</span>
+            <div className="text-[10px] sm:text-xs text-purple-400 mt-1 flex items-center gap-1">
+              <HelpCircle className="w-3 h-3 shrink-0" />
               {video.quiz.length} Question{video.quiz.length !== 1 ? 's' : ''}
             </div>
           )}
         </div>
       </div>
-      <div className="flex gap-2 self-end sm:self-auto">
+      <div className="flex gap-1 sm:gap-2 self-end sm:self-auto shrink-0 mt-2 sm:mt-0 w-full sm:w-auto justify-end border-t border-outline-variant/10 sm:border-0 pt-2 sm:pt-0">
         <button 
           onClick={() => onManageQuiz(video)}
-          className="text-purple-500 hover:text-purple-400 p-2"
+          className="text-purple-500 hover:text-purple-400 p-2 sm:p-2 rounded-lg hover:bg-purple-500/10 transition-colors"
           title="Manage Quiz"
         >
-          <span className="material-symbols-outlined">quiz</span>
+          <HelpCircle className="w-4 h-4 sm:w-5 sm:h-5" />
         </button>
         <button 
           onClick={() => onEdit(video)}
-          className="text-blue-500 hover:text-blue-400 p-2"
+          className="text-blue-500 hover:text-blue-400 p-2 sm:p-2 rounded-lg hover:bg-blue-500/10 transition-colors"
           title="Edit Video"
         >
-          <span className="material-symbols-outlined">edit</span>
+          <Edit className="w-4 h-4 sm:w-5 sm:h-5" />
         </button>
         <button 
           onClick={() => onDelete(video.id)}
-          className="text-red-500 hover:text-red-400 p-2"
+          className="text-red-500 hover:text-red-400 p-2 sm:p-2 rounded-lg hover:bg-red-500/10 transition-colors"
           title="Delete Video"
         >
-          <span className="material-symbols-outlined">delete</span>
+          <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
         </button>
       </div>
     </div>
@@ -529,9 +537,12 @@ export default function Admin() {
                 )}
               </div>
             </form>
+          </div>
 
+          {/* Existing Videos List */}
+          <div className="bg-surface-container rounded-3xl p-4 sm:p-6 md:p-8">
             <h3 className="font-headline font-bold text-2xl mb-4">Existing Videos</h3>
-            <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
+            <div className="space-y-4 max-h-[800px] overflow-y-auto pr-2">
               <DndContext 
                 sensors={sensors}
                 collisionDetection={closestCenter}

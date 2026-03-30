@@ -39,6 +39,7 @@ export default function Lesson() {
   const [isMuted, setIsMuted] = useState(false);
   const [isPlaying, setIsPlaying] = useState(true);
   const [isBuffering, setIsBuffering] = useState(true);
+  const [hasStartedPlaying, setHasStartedPlaying] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
   // Quiz State
@@ -78,7 +79,7 @@ export default function Lesson() {
   useEffect(() => {
     const parseChapters = (description: string) => {
       if (!description) return [];
-      const regex = /\[(\d{2}):(\d{2})\]\s*-\s*(.+)/g;
+      const regex = /\[(\d{1,2}):(\d{2})\]\s*[-:]?\s*(.+)/g;
       const chapters = [];
       let match;
       while ((match = regex.exec(description)) !== null) {
@@ -677,6 +678,8 @@ export default function Lesson() {
 
   const isCompleted = completedVideos.includes(video.id);
 
+  const chaptersToDisplay = parsedChapters.length > 0 ? parsedChapters : VIDEO_CHAPTERS;
+
   return (
     <>
       <Navbar />
@@ -707,7 +710,7 @@ export default function Lesson() {
               {!isVideoLoaded && (
                 <div className="absolute inset-0 z-10 bg-surface-container-highest animate-pulse"></div>
               )}
-              {isBuffering && video.thumbnail && (
+              {isBuffering && !hasStartedPlaying && video.thumbnail && (
                 <div className="absolute inset-0 z-[15] flex items-center justify-center bg-black">
                   <img src={video.thumbnail} alt="Buffering..." className="w-full h-full object-contain opacity-50" />
                   <div className="absolute w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
@@ -739,7 +742,7 @@ export default function Lesson() {
                 }}
                 onPause={() => { setIsPlaying(false); saveProgress(); }}
                 onWaiting={() => setIsBuffering(true)}
-                onPlaying={() => { setIsPlaying(true); setIsBuffering(false); }}
+                onPlaying={() => { setIsPlaying(true); setIsBuffering(false); setHasStartedPlaying(true); }}
                 onEnded={handleVideoEnded}
                 onError={handleVideoError}
                 className={`w-full h-full object-contain transition-opacity duration-500 ${isVideoLoaded ? 'opacity-100' : 'opacity-0'}`}
@@ -774,7 +777,7 @@ export default function Lesson() {
                   className="absolute top-0 left-0 h-full bg-primary pointer-events-none" 
                   style={{ width: `${(currentTime / duration) * 100}%` }}
                 ></div>
-                {VIDEO_CHAPTERS.map(chapter => (
+                {chaptersToDisplay.map(chapter => (
                   <div 
                     key={chapter.time} 
                     className="absolute top-0 h-full w-1 bg-surface group/chapter" 
@@ -1065,116 +1068,7 @@ export default function Lesson() {
               </div>
             </motion.div>
 
-
-
-          </div>
-
-          {/* Sidebar */}
-          <div className="space-y-8">
-            
-            {/* Navigation Buttons */}
-            <div className="flex items-center gap-3 w-full">
-              {prevLesson ? (
-                <Link to={`/lesson/${prevLesson.id}`} className="flex-1">
-                  <button className="w-full flex items-center justify-start gap-3 px-4 py-3 rounded-2xl bg-surface-container hover:bg-surface-container-high transition-colors text-sm font-medium text-left">
-                    <ChevronLeft className="w-4 h-4 shrink-0" />
-                    {prevLesson.thumbnail && (
-                      <img src={prevLesson.thumbnail} alt="" className="w-10 h-10 rounded-lg object-cover shrink-0" />
-                    )}
-                    <div className="truncate">
-                      <div className="text-xs text-on-surface-variant">Previous</div>
-                      <div className="truncate">{prevLesson.title}</div>
-                    </div>
-                  </button>
-                </Link>
-              ) : (
-                <div className="flex-1"></div>
-              )}
-              {nextLesson ? (
-                <Link to={`/lesson/${nextLesson.id}`} className="flex-1">
-                  <button className="w-full flex items-center justify-end gap-3 px-4 py-3 rounded-2xl bg-surface-container hover:bg-surface-container-high transition-colors text-sm font-medium text-right">
-                    <div className="truncate">
-                      <div className="text-xs text-on-surface-variant">Next</div>
-                      <div className="truncate">{nextLesson.title}</div>
-                    </div>
-                    {nextLesson.thumbnail && (
-                      <img src={nextLesson.thumbnail} alt="" className="w-10 h-10 rounded-lg object-cover shrink-0" />
-                    )}
-                    <ChevronRight className="w-4 h-4 shrink-0" />
-                  </button>
-                </Link>
-              ) : (
-                <div className="flex-1"></div>
-              )}
-            </div>
-
-            {/* Chapters (Moved to Sidebar) */}
-            {parsedChapters.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.15 }}
-                className="glass-panel p-6 rounded-3xl"
-              >
-                <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                  <List className="w-5 h-5 text-primary" /> Chapters
-                </h3>
-                <div className="flex flex-col gap-3">
-                  {parsedChapters.map((chapter, index) => {
-                    const isCurrentChapter = currentTime >= chapter.time && (index === parsedChapters.length - 1 || currentTime < parsedChapters[index + 1].time);
-
-                    return (
-                      <div 
-                        key={index}
-                        onClick={() => seekToTime(chapter.time)}
-                        className={`flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all duration-300 border ${isCurrentChapter ? 'bg-primary/10 border-primary/30 text-primary scale-[1.02]' : 'bg-surface-container hover:bg-surface-container-high border-outline-variant/10 text-on-surface'}`}
-                      >
-                        <span className="font-medium text-sm">{chapter.title}</span>
-                        <span className={`text-xs font-mono ${isCurrentChapter ? 'text-primary' : 'text-on-surface-variant'}`}>
-                          {formatTime(chapter.time)}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </motion.div>
-            )}
-
-            {/* Resources */}
-            {video.resourceUrl && (
-              <motion.div 
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.4 }}
-                className="glass-panel p-6 rounded-3xl"
-              >
-                <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                  <FileText className="w-5 h-5 text-secondary" /> Resources
-                </h3>
-                <ul className="space-y-3">
-                  <li>
-                    <a href={video.resourceUrl} target="_blank" rel="noopener noreferrer" className="w-full flex items-center justify-between p-3 rounded-xl hover:bg-surface-container-low transition-colors text-left group border border-transparent hover:border-outline-variant/20">
-                      <div className="flex items-center gap-3 overflow-hidden">
-                        <div className="w-8 h-8 rounded bg-surface-container flex items-center justify-center shrink-0">
-                          <FileText className="w-4 h-4 text-on-surface-variant" />
-                        </div>
-                        <div className="truncate">
-                          <p className="text-sm font-medium text-on-surface truncate">{video.resourceTitle || 'Lesson Resource'}</p>
-                          <p className="text-xs text-on-surface-variant font-mono">Download</p>
-                        </div>
-                      </div>
-                      <Download className="w-4 h-4 text-on-surface-variant group-hover:text-primary shrink-0 transition-colors" />
-                    </a>
-                  </li>
-                </ul>
-              </motion.div>
-            )}
-
-          </div>
-
-        </div>
-
-        {/* Comments Section */}
+            {/* Comments Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -1325,6 +1219,117 @@ export default function Lesson() {
             )}
           </div>
         </motion.div>
+
+
+
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-8">
+            
+            {/* Navigation Buttons */}
+            <div className="flex items-center gap-3 w-full">
+              {prevLesson ? (
+                <Link to={`/lesson/${prevLesson.id}`} className="flex-1">
+                  <button className="w-full flex items-center justify-start gap-3 px-4 py-3 rounded-2xl bg-surface-container hover:bg-surface-container-high transition-colors text-sm font-medium text-left">
+                    <ChevronLeft className="w-4 h-4 shrink-0" />
+                    {prevLesson.thumbnail && (
+                      <img src={prevLesson.thumbnail} alt="" className="w-10 h-10 rounded-lg object-cover shrink-0" />
+                    )}
+                    <div className="truncate">
+                      <div className="text-xs text-on-surface-variant">Previous</div>
+                      <div className="truncate">{prevLesson.title}</div>
+                    </div>
+                  </button>
+                </Link>
+              ) : (
+                <div className="flex-1"></div>
+              )}
+              {nextLesson ? (
+                <Link to={`/lesson/${nextLesson.id}`} className="flex-1">
+                  <button className="w-full flex items-center justify-end gap-3 px-4 py-3 rounded-2xl bg-surface-container hover:bg-surface-container-high transition-colors text-sm font-medium text-right">
+                    <div className="truncate">
+                      <div className="text-xs text-on-surface-variant">Next</div>
+                      <div className="truncate">{nextLesson.title}</div>
+                    </div>
+                    {nextLesson.thumbnail && (
+                      <img src={nextLesson.thumbnail} alt="" className="w-10 h-10 rounded-lg object-cover shrink-0" />
+                    )}
+                    <ChevronRight className="w-4 h-4 shrink-0" />
+                  </button>
+                </Link>
+              ) : (
+                <div className="flex-1"></div>
+              )}
+            </div>
+
+            {/* Chapters (Moved to Sidebar) */}
+            {chaptersToDisplay.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 }}
+                className="glass-panel p-6 rounded-3xl"
+              >
+                <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                  <List className="w-5 h-5 text-primary" /> Chapters
+                </h3>
+                <div className="flex flex-col gap-3">
+                  {chaptersToDisplay.map((chapter, index) => {
+                    const isCurrentChapter = currentTime >= chapter.time && (index === chaptersToDisplay.length - 1 || currentTime < chaptersToDisplay[index + 1].time);
+
+                    return (
+                      <div 
+                        key={index}
+                        onClick={() => seekToTime(chapter.time)}
+                        className={`flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all duration-300 border ${isCurrentChapter ? 'bg-primary/10 border-primary/30 text-primary scale-[1.02]' : 'bg-surface-container hover:bg-surface-container-high border-outline-variant/10 text-on-surface'}`}
+                      >
+                        <span className="font-medium text-sm">{chapter.title}</span>
+                        <span className={`text-xs font-mono ${isCurrentChapter ? 'text-primary' : 'text-on-surface-variant'}`}>
+                          {formatTime(chapter.time)}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </motion.div>
+            )}
+
+            {/* Resources */}
+            {video.resourceUrl && (
+              <motion.div 
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.4 }}
+                className="glass-panel p-6 rounded-3xl"
+              >
+                <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-secondary" /> Resources
+                </h3>
+                <ul className="space-y-3">
+                  <li>
+                    <a href={video.resourceUrl} target="_blank" rel="noopener noreferrer" className="w-full flex items-center justify-between p-3 rounded-xl hover:bg-surface-container-low transition-colors text-left group border border-transparent hover:border-outline-variant/20">
+                      <div className="flex items-center gap-3 overflow-hidden">
+                        <div className="w-8 h-8 rounded bg-surface-container flex items-center justify-center shrink-0">
+                          <FileText className="w-4 h-4 text-on-surface-variant" />
+                        </div>
+                        <div className="truncate">
+                          <p className="text-sm font-medium text-on-surface truncate">{video.resourceTitle || 'Lesson Resource'}</p>
+                          <p className="text-xs text-on-surface-variant font-mono">Download</p>
+                        </div>
+                      </div>
+                      <Download className="w-4 h-4 text-on-surface-variant group-hover:text-primary shrink-0 transition-colors" />
+                    </a>
+                  </li>
+                </ul>
+              </motion.div>
+            )}
+
+          </div>
+
+        </div>
+
+        
       </div>
     </div>
     <Footer />
